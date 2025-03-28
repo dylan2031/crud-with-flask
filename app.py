@@ -17,5 +17,9 @@ def about():
 def posts():
     return render_template('posts.html', posts = Posts)
 
+@app.route('/post/<string:id>/')
+def post(id):
+    return render_template('post.html', id = id)
+
 if __name__ == '__main__':
     app.run(debug=True)
