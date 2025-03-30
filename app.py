@@ -140,6 +140,35 @@ def add_post():
         return redirect(url_for('dashboard'))
     return render_template('add_post.html', form=form)
 
+@app.route('/edit_post/<string:id>', methods=['GET', 'POST'])
+@is_logged_in
+def edit_post(id):
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM posts WHERE id = %s", [id])
+    post = cur.fetchone()
+
+    form = PostForm(request.form)
+
+    form.title.data = post['title']
+    form.body.data = post['body']
+
+    if request.method == 'POST' and form.validate():
+        title = request.form['title']
+        body = request.form['body']
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("UPDATE posts SET title=%s, body=%s WHERE ID = %s", (title, body, id))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash ('Post edited!', 'info')
+
+        return redirect(url_for('dashboard'))
+    return render_template('edit_post.html', form=form)
+
 
 @app.route('/dashboard')
 @is_logged_in
