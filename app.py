@@ -105,6 +105,30 @@ def is_logged_in(f):
             return redirect(url_for('login'))
     return wrap
 
+class PostForm(Form):
+    title = StringField('Title', [validators.Length(min=1, max=200)])
+    body = TextAreaField('Body', [validators.Length(min=10)])
+
+@app.route('/add_post', methods=['GET', 'POST'])
+@is_logged_in
+def add_post():
+    form = PostForm(request.form)
+    if request.method == 'POST' and form.validate():
+        title = form.title.data
+        body = form.body.data
+
+        cur = mysql.connection.cursor()
+
+        cur.execute("INSERT INTO posts(title, body, creator) VALUES(%s, %s, %s)", (title, body, session['username']))
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        flash ('New post added!', 'primary')
+
+        return redirect(url_for('dashboard'))
+    return render_template('add_post.html', form=form)
 
 
 @app.route('/dashboard')
