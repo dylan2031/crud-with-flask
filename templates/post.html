@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <h1>This is post number {{id}}</h1>
+    <h1>{{post.title}}</h1>
+    <small>Created by {{post.creator}} on {{post.date_posted}}</small>
+    <p>{{post.body}}</p>
 {% endblock %}

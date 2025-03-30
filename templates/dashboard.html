@@ -5,4 +5,25 @@
     <h1>Dashboard</h1>
     <p>Hello, {{session.username}}!</p>
     <a class="btn btn-primary" href="/add_post">New Post</a>
+    <br><br>
+    <h3>My posts:</h3>
+    <table class="table table-striped">
+        <tr>
+            <th>Post number</th>
+            <th>Title</th>
+            <th>Creator</th>
+            <th>Date</th>
+        </tr>
+        {% for post in posts %}
+        <tr>
+            <td>{{post.id}}</td>
+            <td>{{post.title}}</td>
+            <td>{{post.creator}}</td>
+            <td>{{post.date_posted}}</td>
+            <td><a href="edit_post/{{post_id}}" class="btn btn-primary">Edit</a></td>
+            <td><a href="#" class="btn btn-danger">Delete</a></td>
+        </tr>
+        {% endfor %}
+
+    </table>
 {% endblock %}

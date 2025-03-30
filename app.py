@@ -1,5 +1,4 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
-from data import Posts
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
@@ -15,8 +14,6 @@ app.config['MYSQL_PORT'] = 3307
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
-Posts = Posts()
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -27,11 +24,24 @@ def about():
 
 @app.route('/posts')
 def posts():
-    return render_template('posts.html', posts = Posts)
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM posts")
+    posts = cur.fetchall()
+
+    if result > 0:
+        return render_template('posts.html', posts=posts)
+    else:
+        msg = 'Nobody has made a post yet.'
+        return render_template('posts.html', msg=msg)
+    cur.close()
 
 @app.route('/post/<string:id>/')
 def post(id):
-    return render_template('post.html', id = id)
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM posts WHERE id = %s", [id])
+    post = cur.fetchone()
+
+    return render_template('post.html', post=post)
 
 class RegisterForm(Form):
     name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -134,7 +144,16 @@ def add_post():
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
-    return render_template('dashboard.html')
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM posts WHERE creator = %s", (session['username'],))
+    posts = cur.fetchall()
+
+    if result > 0:
+        return render_template('dashboard.html', posts=posts)
+    else:
+        msg = 'Your posts will appear here.'
+        return render_template('dashboard.html', msg=msg)
+    cur.close()
 
 @app.route('/logout')
 def logout():
