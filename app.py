@@ -169,6 +169,16 @@ def edit_post(id):
         return redirect(url_for('dashboard'))
     return render_template('edit_post.html', form=form)
 
+@app.route('/delete_post/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_post(id):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM posts WHERE id = %s", [id])
+    mysql.connection.commit()
+    cur.close()
+    flash ('Post deleted', 'info')
+    return redirect(url_for('dashboard'))
+
 
 @app.route('/dashboard')
 @is_logged_in
